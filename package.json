@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest",
+    "lint": "eslint",
+    "build:lambdaLayer": "npm install && mkdir -p nodejs && cp -r node_modules nodejs/ && zip -r  {node-layer}.zip nodejs"
   },
   "repository": {
     "type": "git",
@@ -17,9 +19,14 @@
   },
   "homepage": "https://github.com/afzaanhakim/VF-VanityNumbersConverter#readme",
   "dependencies": {
-    "axios": "^0.24.0"
+    "aws-sdk": "^2.1046.0",
+    "axios": "^0.24.0",
+    "check-if-word": "^1.2.1",
+    "dotenv": "^10.0.0"
   },
   "devDependencies": {
-    "jest": "^27.4.4"
+    "eslint": "^8.4.1",
+    "jest": "^27.4.4",
+    "prettier": "^2.5.1"
   }
 }
