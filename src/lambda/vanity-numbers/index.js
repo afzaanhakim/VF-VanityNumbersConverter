@@ -1,8 +1,12 @@
 require('dotenv').config(); // load environment variables into process.env
-
 const checkWordPackage = require('check-if-word'); // package to check if word is a valid word
-words = checkWordPackage('en'); // validates if words are real
-const {NUMBERS_NEEDED, MAX_ATTEMPTS} = process.env;
+const words = checkWordPackage('en'); // validates if words are real
+const AWS = require('aws-sdk');
+const {NUMBERS_NEEDED, MAX_ATTEMPTS, AWS_REGION} = process.env;
+const docClient = new AWS.DynamoDB.DocumentClient({
+  region: AWS_REGION || 'us-east-1',
+  apiVersion: '2012-08-10'
+});
 
 const numberList = {
   0: [
@@ -141,7 +145,7 @@ const assembleVanityNumber = function (cCode, midDigits, lastDigits) {
       const fourLetterCombo = searchForDigitCombinations(lastDigits, 0);
 
       if (fourLetterCombo) {
-        const twoWordVanityNumber = cCode + threeLetterCombo + fourLetterCombo;
+        const twoWordVanityNumber = cCode + threeLetterCombo + '<break/>' + fourLetterCombo;
         console.log('Assembled two word vanity number: ', twoWordVanityNumber);
         return twoWordVanityNumber;
       } else {
@@ -166,7 +170,33 @@ const assembleVanityNumber = function (cCode, midDigits, lastDigits) {
   }
 };
 
-exports.handler = function (event) {
+async function insertVanityNumbers(vanityNumbers = [], phoneNumber) {
+  console.log(`\n Final vanity number generation results: ${vanityNumbers}`);
+
+  try {
+    //  building params for ddb request
+    const params = {
+      TableName: 'Callers',
+      Item: {
+        id: phoneNumber,
+        vanityNumber1: vanityNumbers[0],
+        vanityNumber2: vanityNumbers[1],
+        vanityNumber3: vanityNumbers[2],
+        vanityNumber4: vanityNumbers[3],
+        vanityNumber5: vanityNumbers[4]
+      }
+    };
+
+    console.log(`Making DocClient put reques ${params}`);
+    const response = await docClient.put(params).promise(); // make request and capture response to log
+    console.log(`Made DocClient put request ${response}`);
+    return;
+  } catch (error) {
+    console.log(`DocClient request fail: ${error}`);
+  }
+}
+
+exports.handler = async function (event) {
   const startTime = Date.now();
   const phoneNumber = event.phoneNumber.replace('+', '');
   const cCode = phoneNumber.slice(0, 4); // Country code
@@ -182,18 +212,17 @@ exports.handler = function (event) {
 
   const endTime = Date.now();
   console.log('Function took ', endTime - startTime, 'ms to return');
-  return convertedNumbers;
+  const modifiedConvertedNumbers = convertedNumbers.map((num) => {
+    let finalString = '';
+
+    for (let char of num) {
+      finalString += `${char}${isNaN(parseInt(char)) ? '' : '<break/>'}`;
+    }
+    return '<speak>' + finalString + '</speak>';
+  });
+  console.log('added ssml tags ---> ', modifiedConvertedNumbers);
+  await insertVanityNumbers(modifiedConvertedNumbers, phoneNumber);
+  return;
 };
 
-/* uncomment for local testing */
 
-// const test = exports.handler({ phoneNumber: '+15198259920' });
-
-// console.log(test);
-
-module.exports = {
-  generateRandomLetterCombinations,
-  assembleVanityNumber,
-  insertNovelVanityNumber,
-  searchForDigitCombinations
-};
