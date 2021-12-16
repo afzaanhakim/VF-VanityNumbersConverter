@@ -133,22 +133,22 @@ const insertNovelVanityNumber = function (array, cCode, midDigits, lastDigits, t
 const assembleVanityNumber = function (cCode, midDigits, lastDigits) {
   console.log('Assembling vanity number...');
   const sevenLetterCombo = searchForDigitCombinations(midDigits + lastDigits, 0);
-  if (sevenLetterCombo) {
+  if (sevenLetterCombo) { //first try with full 7 letter word eg. 14167849933 -> 1416QUIZZED
     const oneWordVanityNumber = cCode + sevenLetterCombo;
     console.log('Found 7 letter combinations', oneWordVanityNumber);
     return oneWordVanityNumber;
   } else {
     const threeLetterCombo = searchForDigitCombinations(midDigits, 0);
-    if (threeLetterCombo) {
+    if (threeLetterCombo) { // try with middle digits eg. 1416228 -> 1416BAT
       console.log('Got three letter combo to add to word: ', threeLetterCombo);
 
       const fourLetterCombo = searchForDigitCombinations(lastDigits, 0);
 
-      if (fourLetterCombo) {
+      if (fourLetterCombo) { // try with last four digits digits eg. 14162282255 -> 1416BATBALL
         const twoWordVanityNumber = cCode + threeLetterCombo + '<break/>' + fourLetterCombo;
         console.log('Assembled two word vanity number: ', twoWordVanityNumber);
-        return twoWordVanityNumber;
-      } else {
+        return twoWordVanityNumber; 
+      } else { // If absolutely no words are found with the digit variations above then we use the last four digits of the number to be converted to alphabets eg. 4168254772--> 416825ISSA
         const randomLetterCombinations = generateRandomLetterCombinations(lastDigits);
         let normalFourLetterWordAbbreviation = cCode + midDigits + randomLetterCombinations;
         console.log('Found four letter random word', normalFourLetterWordAbbreviation);
@@ -197,6 +197,8 @@ async function insertVanityNumbers(vanityNumbers = [], phoneNumber) {
 }
 
 exports.handler = async function (event) {
+  console.log('Inside handler, event', event);
+  const isTestCase = event.isTestCase;
   const startTime = Date.now();
   const phoneNumber = event.phoneNumber.replace('+', '');
   const cCode = phoneNumber.slice(0, 4); // Country code
@@ -220,9 +222,19 @@ exports.handler = async function (event) {
     }
     return '<speak>' + finalString + '</speak>';
   });
-  console.log('added ssml tags ---> ', modifiedConvertedNumbers);
-  await insertVanityNumbers(modifiedConvertedNumbers, phoneNumber);
-  return;
+  if (!isTestCase) {
+    try {
+      await insertVanityNumbers(modifiedConvertedNumbers, phoneNumber);
+    } catch (error) {
+      console.log('Error:', error);
+    }
+  }
+  console.log(modifiedConvertedNumbers);
+  return modifiedConvertedNumbers;
 };
 
 
+//  uncomment for local testing
+// const test = exports.handler({phoneNumber: '+14168254772'});
+
+// console.log(test); 

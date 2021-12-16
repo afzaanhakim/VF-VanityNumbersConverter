@@ -20,10 +20,9 @@ exports.handler = async function (event, context, callback) {
         phoneNumber: phoneNumber,
       }),
     }; // params to declare the async lambda  that needs to be invoked -
-    // params to pass to the invoke function in order to call LAMBDA_NAME async
+    
 
-    await lambda.invoke(params).promise(); // request to invoke lambda async
-
+    await lambda.invoke(params).promise(); 
     return { success: true };
   } catch (error) {
     console.log(error);
