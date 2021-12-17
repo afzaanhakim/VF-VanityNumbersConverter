@@ -234,7 +234,4 @@ exports.handler = async function (event) {
 };
 
 
-//  uncomment for local testing
-// const test = exports.handler({phoneNumber: '+14168254772'});
 
-// console.log(test); 
