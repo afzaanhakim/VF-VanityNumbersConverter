@@ -7,6 +7,17 @@
 
 -  To generate a new vanity number you can call +1(833)433-1451. When you call the first time the system will take a minute to generate your Vanity Numbers. You can call back again to hear your Vanity Numbers.
 
+### To test the generation of Vanity Numbers:
+
+  1. Clone the repository:
+    `git clone https://github.com/afzaanhakim/VF-VanityNumbersConverter.git`
+
+  2. `cd` into the root of the repository.
+    
+  3. Run `npm install` to install dependencies.
+
+  4. Run `npm run test` to run test suite.
+   
 ### Implementation 
 To handle the generation of Vanity Numbers, when a caller calls the Connect contact center, the system will call a AWS Lambda function `caller-lookup` to query the Caller table in DynamoDB and determine if they have called before. 
 If the user has called before, the IVR will speak 3 Vanity Numbers for the user that are already in the table.
@@ -29,15 +40,5 @@ Once we have five numbers, the handler makes a request to insert the five number
 
  ![Connect Contact Flow](https://github.com/afzaanhakim/VF-VanityNumbersConverter/blob/feature/vanity-number-converter-refactor/public/ContactFlow.png?raw=true)
 
- ### To test the generation of Vanity Numbers:
-
-   1. Clone the repository:
-     `git clone https://github.com/afzaanhakim/VF-VanityNumbersConverter.git`
-
-   2. `cd` into the root of the repository.
-      
-   3. Run `npm install` to install dependencies.
-
-   4. Run `npm run test` to run test suite.
 
  
