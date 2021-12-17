@@ -21,7 +21,6 @@ describe('Testing Vanity Numbers Converter', () => {
 
     vanityNumberHandler({phoneNumber, isTestCase: true})
       .then((vanityNumberTest) => {
-        console.log('vanityNumberTest 2 - for check of last 4 digits', vanityNumberTest);
         vanityNumberTest.forEach((num) => {
           expect(isNaN(parseInt(num[num.length - 1]))).toBeTruthy();
         });

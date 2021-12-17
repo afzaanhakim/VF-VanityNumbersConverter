@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "export MAX_ATTEMPTS=500 && export NUMBERS_NEEDED=5 && jest",
     "lint": "eslint",
     "build:lambdaLayer": "npm install && mkdir -p nodejs && cp -r node_modules nodejs/ && zip -r  {node-layer}.zip nodejs"
   },
